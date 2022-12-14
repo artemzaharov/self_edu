@@ -11,11 +11,9 @@ menu = [{'title': "About site ", 'url_name': 'about'},
 
 
 def index(request):
-    posts = Women.objects.all()
-    cats = Category.objects.all()
+    posts = Women.objects.filter(is_published=True)
     context = {'posts': posts,
                'menu': menu,
-               'cats': cats,
                'title': "Main Page",
                'cat_selected': 0}
     return render(request, 'women/index.html', context=context)
@@ -47,14 +45,12 @@ def pageNotFound(request, *args, **kwargs):
 
 def show_category(request, cat_id):
     posts = Women.objects.filter(cat_id=cat_id)
-    cats = Category.objects.all()
 
     if len(posts) == 0:
         raise Http404()
 
     context = {'posts': posts,
                'menu': menu,
-               'cats': cats,
                'title': "Categiries view",
                'cat_selected': cat_id}
     return render(request, 'women/index.html', context=context)

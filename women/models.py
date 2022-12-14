@@ -5,7 +5,8 @@ from django.urls import reverse
 
 class Women(models.Model):
     # id is automaticly added in .Model
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, verbose_name="Verbose name title")
+    # verbose_name will be used in Admin
     content = models.TextField(blank=True)
     # we need MEDIA_ROOT, MEDIA_URL to use media files in development
     photo = models.ImageField(upload_to="photos/%Y/%m/%d")
@@ -19,8 +20,13 @@ class Women(models.Model):
     def __str__(self):
         return self.title
 
+    # also make a 'view on site' button in admin panel but name must be get_absolute_url
     def get_absolute_url(self):
         return reverse("post", kwargs={"post_id": self.pk})
+
+    class Meta:
+        verbose_name = "Famous Women"
+        ordering = ['time_create', 'title']
 
 
 class Category(models.Model):
