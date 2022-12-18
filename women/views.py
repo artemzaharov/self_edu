@@ -6,6 +6,7 @@ from django.views.generic import ListView
 
 # Create your views here.
 
+<<<<<<< HEAD
 class WomenHome(ListView):
     # next line try to take all records from db and view them as list
     # by default use this template app_name/model_list.html -> women/women_list.html
@@ -24,6 +25,18 @@ class WomenHome(ListView):
 #                'title': "Main Page",
 #                'cat_selected': 0}
 #     return render(request, 'women/index.html', context=context)
+=======
+
+def index(request):
+    # we can take GET/POST parameters from url adress with request.GET , request.POST is {}
+    if request.GET:
+        print(request.GET)
+    posts = Women.objects.filter(is_published=True)
+    context = {'posts': posts,
+               'title': "Main Page",
+               'cat_selected': 0}
+    return render(request, 'women/index.html', context=context)
+>>>>>>> 5d4033edeb0541d19fa2cf22197178e478209eec
 
 
 def about(request):
@@ -76,6 +89,12 @@ def pageNotFound(request, *args, **kwargs):
 
 
 def show_category(request, cat_slug):
+<<<<<<< HEAD
+=======
+    print('!')
+    print(request.GET)
+    print('!')
+>>>>>>> 5d4033edeb0541d19fa2cf22197178e478209eec
     cat = Category.objects.get(slug=cat_slug)
     posts = Women.objects.filter(cat_id=cat.id)  # type: ignore
 
@@ -87,7 +106,10 @@ def show_category(request, cat_slug):
                'cat_selected': cat.id}  # type: ignore
     return render(request, 'women/index.html', context=context)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d4033edeb0541d19fa2cf22197178e478209eec
 def archive(request, year):
     if int(year) <= 1991:
         raise Http404()

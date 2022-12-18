@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('women.urls')),
 ]
 
+# for emulating static server, in production nginx will do this
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
