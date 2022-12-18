@@ -1,0 +1,17 @@
+{% extends "women/base.html" %}
+{% block content %}
+    <h1>{{ post.title }}</h1>
+    {% if post.photo %}
+        <p>
+            
+            <img class="img-article-left"
+                 alt="foto"
+                 height="150"
+                 width="150"
+                 src="{{ post.photo.url }}"/>
+        </p>
+    {% endif %}
+    {{ post.content|linebreaks }}
+    Category of post: {{ post.cat_id }} Cat_selected : {{ cat_selected }}
+    
+{% endblock content %}
