@@ -3,11 +3,8 @@ from women.models import *
 
 register = template.Library()
 
-<<<<<<< HEAD
 # just an example , we dont use it
-=======
 # get_categories is just an example , we dont use it
->>>>>>> 5d4033edeb0541d19fa2cf22197178e478209eec
 
 
 @register.simple_tag(name="getcats")
@@ -29,17 +26,10 @@ def show_categories(sort=None, cat_selected=0):
 @register.inclusion_tag("women/menu.html")
 def show_menu():
     menu = [{'title': "About site ", 'url_name': 'about'},
-<<<<<<< HEAD
-            {'title': "Add article ", 'url_name': 'add_page'},         
-=======
             {'title': "Add article ", 'url_name': 'add_page'},
->>>>>>> 5d4033edeb0541d19fa2cf22197178e478209eec
+            {'title': "Add article ", 'url_name': 'add_page'},
             {'title': "Contact Us ", 'url_name': 'contact'},
             {'title': "Enter ", 'url_name': 'login'},
             ]
     # this parametr 'cats' will automaticly work in list_categories
-<<<<<<< HEAD
-    return {"menu": menu,}
-=======
     return {"menu": menu, }
->>>>>>> 5d4033edeb0541d19fa2cf22197178e478209eec
