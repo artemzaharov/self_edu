@@ -2,19 +2,42 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from .models import *
 from . forms import *
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView, CreateView
+from django.urls import reverse_lazy
 
 # Create your views here.
+
+# menu = [{'title': "About site ", 'url_name': 'about'},
+#             {'title': "Add article ", 'url_name': 'add_page'},
+#             {'title': "Add article ", 'url_name': 'add_page'},
+#             {'title': "Contact Us ", 'url_name': 'contact'},
+#             {'title': "Enter ", 'url_name': 'login'},
+#             ]
+
 
 class WomenHome(ListView):
     # next line try to take all records from db and view them as list
     # by default use this template app_name/model_list.html -> women/women_list.html
-    # also when we used def index we loop through posts in templates now we will loop via object_list 
-    # or use context_object_name    
+    # also when we used def index we loop through posts in templates now we will loop via object_list
+    # or use context_object_name
     model = Women
     template_name = "women/index.html"
     context_object_name = 'posts'
-    extra_context = {'title': "Home Page"}
+    # we can't use extra content with list(we need to check it!!!), its okay for title but if we need list -> use get_context_data.
+    # extra_context = {'title': "Home Page"}
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        # this is case if we have menu like list of dicts in views , but we make it temlate tag
+        context = super().get_context_data(**kwargs)
+        # context['menu'] = menu
+        context['title'] = "Home Page"
+        context['cat_selected'] = 0
+        print(context)
+        return context
+
+    def get_queryset(self):
+        return Women.objects.filter(is_published=True)
+
 
 # def index(request):
 #     # we can take GET/POST parameters from url adress with request.GET , request.POST is {}
@@ -41,26 +64,36 @@ def about(request):
     return render(request, 'women/about.html', {'title': "About Page"})
 
 
-def addpage(request):
-    # first time request.method = None so we go to else:
-    # second time after submit it will returns form with our data
-    if request.method == "POST":
-        # request files i used for downloading foto
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            # print(form.cleaned_data)
-            # try:
-            #     Women.objects.create(**form.cleaned_data)
-            #     return redirect('home')
-            # except:
-            #     form.add_error(None, "Mistake in Post add")
-            # we use try/exept when form is not connented to model if ti is just:
-            form.save()
-            return redirect('home')
-    else:
-        form = AddPostForm()
-    return render(request, 'women/addpage.html', {'form': form, 'title': "Add Page"})
+# def addpage(request):
+#     # first time request.method = None so we go to else:
+#     # second time after submit it will returns form with our data
+#     if request.method == "POST":
+#         # request files i used for downloading foto
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # print(form.cleaned_data)
+#             # try:
+#             #     Women.objects.create(**form.cleaned_data)
+#             #     return redirect('home')
+#             # except:
+#             #     form.add_error(None, "Mistake in Post add")
+#             # we use try/exept when form is not connented to model if it is connected - just:
+#             form.save()
+#             return redirect('home')
+#     else:
+#         form = AddPostForm()
+#     return render(request, 'women/addpage.html', {'form': form, 'title': "Add Page"})
 
+class AddPage(CreateView):
+    form_class = AddPostForm
+    template_name = 'women/addpage.html'
+    # if we have get_absolute_url in models after adding post we will redirect on post page, but if we want oher page:
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Add Post'
+        return context
 
 def contact(request):
     return HttpResponse("Contact Page")
@@ -70,36 +103,69 @@ def login(request):
     return HttpResponse("Login Page")
 
 
-def show_post(request, post_slug):
-    post = get_object_or_404(Women, slug=post_slug)
+# def show_post(request, post_slug):
+#     post = get_object_or_404(Women, slug=post_slug)
 
-    context = {
-        'post': post,
-        'title': post.title,
-        'cat_selected': post.cat_id,  # type: ignore
-    }
+#     context = {
+#         'post': post,
+#         'title': post.title,
+#         'cat_selected': post.cat_id,  # type: ignore
+#     }
 
-    return render(request, 'women/post.html', context=context)
+#     return render(request, 'women/post.html', context=context)
+
+class ShowPost(DetailView):
+    model = Women
+    template_name = 'women/post.html'
+    # if we don't have slug_url_kwarg then in urls.py by default we need to use slug instead post_slug
+    slug_url_kwarg = 'post_slug'
+    # to use post in template
+    context_object_name = 'post'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = context['post'].title
+        context['cat_selected'] = context['post'].cat_id
+        return context
+    
 
 
 def pageNotFound(request, *args, **kwargs):
     return HttpResponseNotFound("<h1>Page Not Found From woman/views </h1>")
 
 
-def show_category(request, cat_slug):
-    print('!')
-    print(request.GET)
-    print('!')
-    cat = Category.objects.get(slug=cat_slug)
-    posts = Women.objects.filter(cat_id=cat.id)  # type: ignore
+# def show_category(request, cat_slug):
+#     cat = Category.objects.get(slug=cat_slug)
+#     posts = Women.objects.filter(cat_id=cat.id)  # type: ignore
 
-    if len(posts) == 0:
-        raise Http404()
+#     if len(posts) == 0:
+#         raise Http404()
 
-    context = {'posts': posts,
-               'title': "Categories view",
-               'cat_selected': cat.id}  # type: ignore
-    return render(request, 'women/index.html', context=context)
+#     context = {'posts': posts,
+#                'title': "Categories view",
+#                'cat_selected': cat.id}  # type: ignore
+#     return render(request, 'women/index.html', context=context)
+
+class WomenCategory(ListView):
+    model = Women
+    template_name = 'women/index.html'
+    context_object_name = 'posts'
+    # if we don't have posts in category it will be a mistake 'list index out of range
+    # we can fix it with allow_empty
+    allow_empty = False
+
+    def get_queryset(self):
+        # cat__slug is django orm method to another table , self.kwargs['cat_slug'] takes slug from url
+        return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(context)
+        print('------------------------------------------')
+        context['title'] = 'Category -' + str(context['posts'][0].cat)
+        context['cat_selected'] = context['posts'][0].cat_id
+        print(context)
+        return context
 
 
 def archive(request, year):

@@ -27,7 +27,6 @@ def show_categories(sort=None, cat_selected=0):
 def show_menu():
     menu = [{'title': "About site ", 'url_name': 'about'},
             {'title': "Add article ", 'url_name': 'add_page'},
-            {'title': "Add article ", 'url_name': 'add_page'},
             {'title': "Contact Us ", 'url_name': 'contact'},
             {'title': "Enter ", 'url_name': 'login'},
             ]
