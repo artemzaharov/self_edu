@@ -14,7 +14,10 @@ class Women(models.Model):
     time_create = models.DateTimeField(auto_now_add=True)
     time_update = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField(default=True)
-    cat = models.ForeignKey('Category', on_delete=models.PROTECT)
+    # if you don't specify a related_name, Django automatically creates one using the name of your model with the suffix _set, for instance Category.women_set.all().
+    # Now we cat take all actrees posts with  c= Category.objects.get(pk=2)   c.women_set.all()
+    # If related_name exists we need to use it in c = Category.objects.annotate(total=Count('get_posts')) if not c = Category.objects.annotate(total=Count('women'))
+    cat = models.ForeignKey('Category', on_delete=models.PROTECT, related_name="get_posts")
     # to check what sql command we run in term ./manage.py sqlmigrate women 0001
     # file 0001_initial.py was created after makemigrations
 

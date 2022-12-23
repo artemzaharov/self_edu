@@ -1,0 +1,125 @@
+* ORM Django *
+python manage.py shell
+
+** Импорт модели **
+from myapp.models import *
+
+* SELECT * *
+MyApp.objects.all()
+MyApp.objects.all()[:3]
+* SQL ЗАПРОСЫ *
+from django.db import connection
+connection.queries
+
+* ORDER BY *
+MyApp.objects.order_by('pk')
+MyApp.objects.all().order_by('pk')
+MyApp.objects.all().reverse()
+
+* WHERE *
+MyApp.objects.filter(pk__gte=2)
+MyApp.objects.filter(pk__gt=2)
+MyApp.objects.get(pk=1)
+m = MyApp.objects.get(pk=1)
+m.cat
+m.cat.name
+
+* Обратная связь Категории с Материалом *
+c.myapp_set
+c.myapp_set.all()
+
+* LIKE, iLIKE *
+MyApp.objects.filter(title__contains='во')    LIKE
+MyApp.objects.filter(title__icontains='во')   iLIKE
+MyApp.objects.filter(pk__in=[1,2,3])     IN
+MyApp.objects.filter(pk__in=[1,2,3], is_published=True)   AND
+cats = Category.objects.filter(pk__gt=2)
+MyApp.objects.filter(cat__in=cats)
+
+* AND, OR, NOT, Q import *
+from django.db.models import Q
+MyApp.objects.filter(Q(pk__gt=3) | Q(cat_id__gt=4))  & - ADN,  | - OR, ~ - NOT
+MyApp.objects.filter(~Q(pk=1) | Q(cat_id=2))
+MyApp.objects.filter(~Q(pk=1) & Q(cat_id=2))
+MyApp.objects.first()
+
+* FIRST, LAST *
+MyApp.objects.order_by('pk').first()
+MyApp.objects.order_by('-pk').first()
+MyApp.objects.last()
+
+* DATE, TIME *
+MyApp.objects.latest('time_update')
+MyApp.objects.earliest('time_update')
+MyApp.objects.order_by('title').earliest('time_update')
+* INTERVAL *
+a = MyApp.objects.get(pk=2)
+a.get_previous_by_название_поля
+a.get_next_by_название_поля
+a.get_previous_by_time_update()
+a.get_next_by_time_update()
+a.get_next_by_time_update(pk__gt=6)
+
+* EXISTS, COUNT *
+c = Category.objects.get(pk=1)
+c.myapp_set.exists()     * True если есть новости в категории
+c.myapp_set.count()     * количество новостей в категории
+MyApp.objects.filter(pk__gt=1).count()
+MyApp.objects.filter(cat__in=[1]) * Обращение к id Категории через Новости
+MyApp.objects.filter(cat__name='Политика')
+MyApp.objects.filter(cat__name__contains='лит')
+
+Category.objects.filter(myapp__title__contains='Нов')
+Category.objects.filter(myapp__title__contains='Нов').distinct()
+
+* Агрегирующие функции *
+ from django.db.models import *
+
+MyApp.objects.count()
+MyApp.objects.aggregate(Min('cat_id'))
+MyApp.objects.aggregate(Min('cat_id'), Max('cat_id'))
+MyApp.objects.aggregate(max=Min('cat_id'),min=Max('cat_id'))
+MyApp.objects.aggregate(res=Sum('cat_id') - Count('cat_id'))
+MyApp.objects.aggregate(avg=Avg('cat_id')
+MyApp.objects.filter(pk__gt=2).aggregate(avg=Avg('cat_id'))
+
+* Выбор некоторых полей *
+MyApp.objects.values('title', 'cat_id').get(pk=2)
+
+* Выбор из связанной модели *
+MyApp.objects.values('title', 'cat__name').get(pk=3)
+MyApp.objects.values('title', 'cat__slug').get(pk=3)
+
+* GROUP BY, Annotate *
+SELECT COUNT(id) FROM myapp GROUP BY cat_id
+MyApp.objects.values('cat_id').annotate(Count('id'))
+
+c = Category.objects.annotate(total=Count('myapp'))
+len(c)
+c[0].total
+
+ c = Category.objects.annotate(total=Count('myapp')).filter(total__gt=0)
+
+ * Класс F *
+from django.db.models import F
+MyApp.objects.filter(pk__gt=F('cat_id'))  * Сравнение полей таблицы
+
+* Length *
+from django.db.models.functions import Length
+l = MyApp.objects.annotate(len=Length('title'))
+l = [{'title': '...', 'len':9},{...},{...}]
+for x in l:
+     print(x.title, x.len)
+
+* RAW SQL *
+MyApp.objects.raw('SELECT * FROM myapp_myapp')
+a = _
+for item in a:
+    print(item.pk, item.title)
+
+MyApp.objects.raw("SELECT id, title FROM myapp_myapp WHERE slug='%s'", [slug])
+
+*RESET queries in shell*
+from django.db import reset_queries
+reset_queries()
+connection.queries

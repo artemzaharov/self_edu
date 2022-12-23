@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound, Http404
-from .models import *
-from . forms import *
 from django.views.generic import ListView, DetailView, CreateView
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+
+from .utils import *
+from .models import *
+from . forms import *
 
 # Create your views here.
 
@@ -15,7 +19,7 @@ from django.urls import reverse_lazy
 #             ]
 
 
-class WomenHome(ListView):
+class WomenHome(DataMixin, ListView):
     # next line try to take all records from db and view them as list
     # by default use this template app_name/model_list.html -> women/women_list.html
     # also when we used def index we loop through posts in templates now we will loop via object_list
@@ -30,10 +34,11 @@ class WomenHome(ListView):
         # this is case if we have menu like list of dicts in views , but we make it temlate tag
         context = super().get_context_data(**kwargs)
         # context['menu'] = menu
-        context['title'] = "Home Page"
-        context['cat_selected'] = 0
-        print(context)
-        return context
+        c_def = self.get_user_context(title="Main Page")
+        # this are ways to summ 2 dicts
+        # context = dict(list(context.items()) + list(c_def.items()))
+        # context =  {**context, ** c_def}
+        return context | c_def
 
     def get_queryset(self):
         return Women.objects.filter(is_published=True)
@@ -60,6 +65,7 @@ def index(request):
     return render(request, 'women/index.html', context=context)
 
 
+# @login_required
 def about(request):
     return render(request, 'women/about.html', {'title': "About Page"})
 
@@ -84,16 +90,23 @@ def about(request):
 #         form = AddPostForm()
 #     return render(request, 'women/addpage.html', {'form': form, 'title': "Add Page"})
 
-class AddPage(CreateView):
+class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+    # LoginRequiredMixin to look this page we must have authorizetion in admin-panel
     form_class = AddPostForm
     template_name = 'women/addpage.html'
     # if we have get_absolute_url in models after adding post we will redirect on post page, but if we want oher page:
     success_url = reverse_lazy('home')
+    # login url will rederict to login page, in our case index.html
+    login_url = reverse_lazy('home')
+    # redirect_field_name = 'redirect_to'
+    # if we are not authorized return 403 Page
+    raise_exception = True
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Add Post'
-        return context
+        c_def = self.get_user_context(title="Add Page")
+        return context|c_def
+
 
 def contact(request):
     return HttpResponse("Contact Page")
@@ -114,7 +127,7 @@ def login(request):
 
 #     return render(request, 'women/post.html', context=context)
 
-class ShowPost(DetailView):
+class ShowPost(DataMixin, DetailView):
     model = Women
     template_name = 'women/post.html'
     # if we don't have slug_url_kwarg then in urls.py by default we need to use slug instead post_slug
@@ -124,10 +137,8 @@ class ShowPost(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = context['post'].title
-        context['cat_selected'] = context['post'].cat_id
-        return context
-    
+        c_def = self.get_user_context(title=context['post'])
+        return context | c_def
 
 
 def pageNotFound(request, *args, **kwargs):
@@ -146,7 +157,7 @@ def pageNotFound(request, *args, **kwargs):
 #                'cat_selected': cat.id}  # type: ignore
 #     return render(request, 'women/index.html', context=context)
 
-class WomenCategory(ListView):
+class WomenCategory(DataMixin, ListView):
     model = Women
     template_name = 'women/index.html'
     context_object_name = 'posts'
@@ -160,12 +171,9 @@ class WomenCategory(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        print(context)
-        print('------------------------------------------')
-        context['title'] = 'Category -' + str(context['posts'][0].cat)
-        context['cat_selected'] = context['posts'][0].cat_id
-        print(context)
-        return context
+        c_def = self.get_user_context(title='Category -' + str(context['posts'][0].cat),
+                                      cat_selected=context['posts'][0].cat_id)
+        return context | c_def
 
 
 def archive(request, year):

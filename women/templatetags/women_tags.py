@@ -23,12 +23,13 @@ def show_categories(sort=None, cat_selected=0):
     return {"cats": cats, "cat_selected": cat_selected}
 
 
-@register.inclusion_tag("women/menu.html")
-def show_menu():
-    menu = [{'title': "About site ", 'url_name': 'about'},
-            {'title': "Add article ", 'url_name': 'add_page'},
-            {'title': "Contact Us ", 'url_name': 'contact'},
-            {'title': "Enter ", 'url_name': 'login'},
-            ]
-    # this parametr 'cats' will automaticly work in list_categories
-    return {"menu": menu, }
+# if we want to use template tag for menu, but we use mixins
+# @register.inclusion_tag("women/menu.html")
+# def show_menu():
+#     menu = [{'title': "About site ", 'url_name': 'about'},
+#             {'title': "Add article ", 'url_name': 'add_page'},
+#             {'title': "Contact Us ", 'url_name': 'contact'},
+#             {'title': "Enter ", 'url_name': 'login'},
+#             ]
+#     # this parametr 'cats' will automaticly work in list_categories
+#     return {"menu": menu, }
