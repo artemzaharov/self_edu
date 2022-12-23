@@ -15,8 +15,8 @@ class DataMixin:
         cats = Category.objects.annotate(Count('get_posts'))
         print(cats)
         user_menu = menu.copy()
-        if not self.request.user.is_authenticated:
-            user_menu.pop(1)
+        if not self.request.user.is_authenticated:# type: ignore
+             user_menu.pop(1)
         
         context['menu'] = user_menu
         context['cats'] = cats

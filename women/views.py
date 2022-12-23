@@ -4,6 +4,8 @@ from django.views.generic import ListView, DetailView, CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+
 
 from .utils import *
 from .models import *
@@ -24,6 +26,7 @@ class WomenHome(DataMixin, ListView):
     # by default use this template app_name/model_list.html -> women/women_list.html
     # also when we used def index we loop through posts in templates now we will loop via object_list
     # or use context_object_name
+    paginate_by = 2
     model = Women
     template_name = "women/index.html"
     context_object_name = 'posts'
@@ -67,7 +70,12 @@ def index(request):
 
 # @login_required
 def about(request):
-    return render(request, 'women/about.html', {'title': "About Page"})
+    # make post pagination with FBV
+    contact_list = Women.objects.all()
+    paginator = Paginator(contact_list, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'women/about.html', {'page_object': page_obj, 'title': "About Page"})
 
 
 # def addpage(request):
@@ -105,7 +113,7 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title="Add Page")
-        return context|c_def
+        return context | c_def
 
 
 def contact(request):
