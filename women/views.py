@@ -3,8 +3,9 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.views.generic import ListView, DetailView, CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+# from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator 
+# from django.contrib.auth.forms import UserCreationForm
 
 
 from .utils import *
@@ -26,7 +27,7 @@ class WomenHome(DataMixin, ListView):
     # by default use this template app_name/model_list.html -> women/women_list.html
     # also when we used def index we loop through posts in templates now we will loop via object_list
     # or use context_object_name
-    paginate_by = 2
+    paginate_by = 1
     model = Women
     template_name = "women/index.html"
     context_object_name = 'posts'
@@ -166,6 +167,8 @@ def pageNotFound(request, *args, **kwargs):
 #     return render(request, 'women/index.html', context=context)
 
 class WomenCategory(DataMixin, ListView):
+    # we can add paginate in DataMixin because we have it here and in WomenHome
+    paginate_by = 1
     model = Women
     template_name = 'women/index.html'
     context_object_name = 'posts'
@@ -192,3 +195,15 @@ def archive(request, year):
     elif int(year) == 2022:
         return redirect('home', permanent=True)
     return HttpResponse(f"<h1>Archive for yesrs</h1><p>{year}</p>")
+
+
+class RegisterUser(DataMixin, CreateView):
+    # form_class = UserCreationForm - is standart django form , we write our own in forms.py
+    form_class = RegisterUserForm
+    template_name = 'women/register.html'
+    success_url = reverse_lazy('login')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Registartion')                         
+        return context | c_def

@@ -1,26 +1,19 @@
-    <div class="header">
-        <ul id="mainmenu" class="mainmenu">
-            <li class="logo">
-                <a href="{% url 'home' %}">
-                    <div class="logo"></div>
-                </a>
-            
+<div class="header">
+    <ul id="mainmenu" class="mainmenu">
+        <li class="logo">
+            <a href="{% url 'home' %}">
+                <div class="logo"></div>
+            </a>
+        </li>
+        {% for m in menu %}
+            <li>
+                <a href="{% url m.url_name %}">{{ m.title }}</a>
             </li>
-            {% for m in menu %}
-                {% if not forloop.last %}
-                    <li>
-                        <a href="{% url m.url_name %}">{{ m.title }}</a>
-                    </li>
-                {% else %}
-                    <li class="last">
-                        <a href="{% url m.url_name %}">{{ m.title }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-            {% if user.is_authenticated %}
-            <p>Welcome {{ user.username }}</p>       
-        {% endif %} 
-        </ul>
-        <div class="clear"></div>
-    </div>
-
+        {% endfor %}
+        <li class="last">
+        <a href="{% url 'register' %}">Registration</a> | <a href="{% url 'login' %}">Enter</a>
+        {% if user.is_authenticated %}<p>Welcome {{ user.username }}</p>{% endif %}
+        </li>
+    </ul>
+    <div class="clear"></div>
+</div>

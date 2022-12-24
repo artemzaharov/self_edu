@@ -67,8 +67,33 @@
                                 <div class="content-text">
                                     {% block content %}
                                     {% endblock content %}
-
-                                    {% for p in paginator.page_range %}<a href="?page={{ p }}"> {{ p }} </a>{% endfor %}
+                                    {% if page_obj.has_other_pages %}
+                                        <nav class="list-pages">
+                                            <ul>
+                                                {% if page_obj.has_previous %}
+                                                    <li class="page-num">
+                                                        <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
+                                                    </li>
+                                                {% endif %}
+                                                {% for p in paginator.page_range %}
+                                                    {% if page_obj.number == p %}
+                                                        <li class="page-num page-num-selected">
+                                                            <a href="?page={{ p }}">{{ p }}</a>
+                                                        </li>
+                                                    {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                                                        <li class="page-num page">
+                                                            <a href="?page={{ p }}">{{ p }}</a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if page_obj.has_next %}
+                                                    <li class="page-num">
+                                                        <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    {% endif %}
                                 </div>
                                 <!-- Конец блока контента -->
                             </td>
