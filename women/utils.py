@@ -22,3 +22,4 @@ class DataMixin:
             context['cat_selected'] = 0
         print("Context: ", context)
         return context
+

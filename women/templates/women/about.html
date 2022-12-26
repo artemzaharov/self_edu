@@ -2,7 +2,7 @@
 {% block content %}
     <h1>{{ title }}</h1>
     <p>
-        {% for contact in page_object %}<p>{{ contact }}</p>{% endfor %}
+        {% for contact in page_object %}<p>{{ contact }}: id = {{ contact.id }}</p>{% endfor %}
     </p>
     {% for p in page_object.paginator.page_range %}<a href="?page={{ p }}">{{ p }}</a>{% endfor %}
 {% endblock content %}

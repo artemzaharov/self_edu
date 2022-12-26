@@ -20,6 +20,7 @@ class Women(models.Model):
     cat = models.ForeignKey('Category', on_delete=models.PROTECT, related_name="get_posts")
     # to check what sql command we run in term ./manage.py sqlmigrate women 0001
     # file 0001_initial.py was created after makemigrations
+    tag = models.ManyToManyField('Tag', blank=True, related_name="get_tags")
 
     def __str__(self):
         return self.title
@@ -32,6 +33,20 @@ class Women(models.Model):
         verbose_name = "Famous Women"
         ordering = ['time_create', 'title']
 
+# create new class tag and add it
+class Tag(models.Model):
+    title = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50, unique=True, db_index=True, verbose_name="URL")
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse("tag", kwargs={"tag_slug": self.slug})
+
+    class Meta:
+        verbose_name = "Tag"
+        ordering = ['title']
 
 class Category(models.Model):
 

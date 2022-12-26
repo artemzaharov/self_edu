@@ -26,6 +26,9 @@
                             <!-- Sidebar слева -->
                             <td valign="top" class="left-chapters">
                                 <ul id="leftchapters">
+                                    <li>
+                                        {% if user.is_authenticated %}<p>Welcome {{ user.username }}</p>{% endif %}
+                                        </li>
                                     {% if cat_selected == 0 %}
                                         <li class="selected">All categoties</li>
                                     {% else %}
@@ -38,6 +41,7 @@
                                     cat_selected = cat_selected {% endcomment %}
                                     <!-- We comment our tamlatetag tu use mixins -->
                                     {% comment %} {% show_categories '-name' cat_selected %} {% endcomment %}
+                                    
                                     {% for c in cats %}
                                         {% if c.get_posts__count > 0 %}
                                             {% if c.pk == cat_selected %}
@@ -67,6 +71,7 @@
                                 <div class="content-text">
                                     {% block content %}
                                     {% endblock content %}
+                                     <!-- Paginator -->
                                     {% if page_obj.has_other_pages %}
                                         <nav class="list-pages">
                                             <ul>
@@ -75,6 +80,7 @@
                                                         <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
                                                     </li>
                                                 {% endif %}
+                                                
                                                 {% for p in paginator.page_range %}
                                                     {% if page_obj.number == p %}
                                                         <li class="page-num page-num-selected">
