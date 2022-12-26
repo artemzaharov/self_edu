@@ -27,6 +27,10 @@ urlpatterns = [
 
 # for emulating static server, in production nginx will do this
 if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # special variable for 404 error we make a new in women/views

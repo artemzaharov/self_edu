@@ -9,7 +9,7 @@ from django.contrib.auth import logout , login
 # from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator 
 # from django.contrib.auth.forms import UserCreationForm
-
+from django.views.decorators.cache import cache_page
 
 from .utils import *
 from .models import *
@@ -48,7 +48,8 @@ class WomenHome(DataMixin, ListView):
         return context | c_def
 
     def get_queryset(self):
-        return Women.objects.filter(is_published=True)
+        # we can use select_related for faster loading
+        return Women.objects.filter(is_published=True).select_related('cat')
 
 
 # def index(request):
@@ -61,18 +62,10 @@ class WomenHome(DataMixin, ListView):
 #                'cat_selected': 0}
 #     return render(request, 'women/index.html', context=context)
 
-def index(request):
-    # we can take GET/POST parameters from url adress with request.GET , request.POST is {}
-    if request.GET:
-        print(request.GET)
-    posts = Women.objects.filter(is_published=True)
-    context = {'posts': posts,
-               'title': "Main Page",
-               'cat_selected': 0}
-    return render(request, 'women/index.html', context=context)
 
 
 # @login_required
+@cache_page(60 * 15)
 def about(request):
     # make post pagination with FBV
     contact_list = Women.objects.all()
@@ -183,12 +176,13 @@ class WomenCategory(DataMixin, ListView):
 
     def get_queryset(self):
         # cat__slug is django orm method to another table , self.kwargs['cat_slug'] takes slug from url
-        return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+        return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True).select_related('cat')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        c_def = self.get_user_context(title='Category -' + str(context['posts'][0].cat),
-                                      cat_selected=context['posts'][0].cat_id)
+        c = Category.objects.get(slug=self.kwargs['cat_slug']) 
+        c_def = self.get_user_context(title='Category -' + str(c.name), cat_selected=c.pk)
+
         return context | c_def
 
 
