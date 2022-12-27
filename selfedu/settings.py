@@ -138,6 +138,7 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
+# add cache settings, we need to create a cache directory
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

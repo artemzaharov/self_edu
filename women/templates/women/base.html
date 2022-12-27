@@ -24,8 +24,10 @@
                     <table class="table-content" border=0 cellpadding="0" cellspacing="0">
                         <tr>
                             <!-- Sidebar слева -->
+                            {% load cache %}
                             <td valign="top" class="left-chapters">
                                 <ul id="leftchapters">
+                                    {% cache 60 sidebar %}
                                     <li>
                                         {% if user.is_authenticated %}<p>Welcome {{ user.username }}</p>{% endif %}
                                         </li>
@@ -53,6 +55,7 @@
                                             {% endif %}
                                         {% endif %}
                                     {% endfor %}
+                                    {% endcache %}
                                     <li class="share">
                                         <p>Наш канал</p>
                                         <a class="share-yt"
